@@ -1,0 +1,191 @@
+openapi: 3.0.0
+info:
+  title: Threaded Issue Chat API
+  version: 1.0.0
+  description: API for authentication, message retrieval, and GitHub integration.
+paths:
+  /auth/github/login:
+    get:
+      summary: Initiate GitHub OAuth flow
+      responses:
+        '302':
+          description: Redirect to GitHub
+  
+  /auth/github/callback:
+    get:
+      summary: GitHub OAuth callback
+      parameters:
+        - name: code
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: state
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '302':
+          description: Redirect to Frontend with session cookie
+
+  /api/me:
+    get:
+      summary: Get current user profile
+      responses:
+        '200':
+          description: Current user
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '401':
+          description: Not authenticated
+
+  /api/messages:
+    get:
+      summary: Get top-level messages (Main Channel)
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 50
+        - name: before_id
+          in: query
+          description: Pagination cursor (message ID)
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: List of messages
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Message'
+
+  /api/messages/{id}/thread:
+    get:
+      summary: Get replies for a specific message
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: List of replies
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Message'
+
+  /api/repos:
+    get:
+      summary: Get accessible GitHub repositories for the user
+      responses:
+        '200':
+          description: List of repositories
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Repository'
+
+  /api/issues:
+    post:
+      summary: Create a GitHub issue from a thread
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateIssueRequest'
+      responses:
+        '201':
+          description: Issue created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Issue'
+
+components:
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+        username:
+          type: string
+        avatar_url:
+          type: string
+
+    Message:
+      type: object
+      properties:
+        id:
+          type: integer
+        content:
+          type: string
+        user:
+          $ref: '#/components/schemas/User'
+        parent_id:
+          type: integer
+          nullable: true
+        reply_count:
+          type: integer
+          description: Number of replies (if parent_id is null)
+        created_at:
+          type: string
+          format: date-time
+
+    Repository:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        full_name:
+          type: string
+        owner:
+          type: string
+
+    CreateIssueRequest:
+      type: object
+      required:
+        - owner
+        - repo
+        - title
+        - body
+      properties:
+        owner:
+          type: string
+        repo:
+          type: string
+        title:
+          type: string
+        body:
+          type: string
+        thread_id:
+          type: integer
+          description: ID of the root message of the thread (optional, for linking)
+
+    Issue:
+      type: object
+      properties:
+        id:
+          type: integer
+        number:
+          type: integer
+        title:
+          type: string
+        html_url:
+          type: string
