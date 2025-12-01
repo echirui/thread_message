@@ -4,12 +4,16 @@ mod error;
 use axum::{
     routing::get,
     Router,
-    Extension,
     response::Json,
 };
 use serde_json::{json, Value};
 use std::net::SocketAddr;
 use tower_http::trace::TraceLayer;
+
+#[derive(Clone)]
+pub struct AppState {
+    pub pool: sqlx::SqlitePool,
+}
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
@@ -21,11 +25,14 @@ async fn main() -> anyhow::Result<()> {
 
     // Init DB
     let pool = db::init_pool().await?;
+    
+    // Create State
+    let state = AppState { pool };
 
     // Build app
     let app = Router::new()
         .route("/", get(health_check))
-        .layer(Extension(pool))
+        .with_state(state)
         .layer(TraceLayer::new_for_http());
 
     // Run server
