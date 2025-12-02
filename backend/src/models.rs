@@ -9,7 +9,7 @@ pub struct Message {
     pub created_at: chrono::NaiveDateTime,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Serialize)]
 pub struct CreateMessage {
     pub content: String,
     pub sender_id: String,

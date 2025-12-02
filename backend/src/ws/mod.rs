@@ -3,7 +3,7 @@ use axum::{
     response::IntoResponse,
 };
 use futures::{sink::SinkExt, stream::StreamExt};
-use crate::{AppState, models::Message};
+use crate::AppState;
 
 pub async fn ws_handler(
     ws: WebSocketUpgrade,

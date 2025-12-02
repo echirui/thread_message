@@ -11,12 +11,14 @@ pub enum AppError {
     #[error("Database error: {0}")]
     Database(#[from] sqlx::Error),
 
+    #[allow(dead_code)]
     #[error("Not found")]
     NotFound,
 
     #[error("Internal server error")]
     Any(#[from] anyhow::Error),
     
+    #[allow(dead_code)]
     #[error("Bad request: {0}")]
     BadRequest(String),
 }
