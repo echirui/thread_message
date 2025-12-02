@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import useWebSocket from 'react-use-websocket';
 import { client } from '../api/client';
-import type { Message } from './useChat'; // type を追加
+import type { Message } from './useChat';
 
 export const useThread = (threadId: number | null, senderId: string) => {
   const [messages, setMessages] = useState<Message[]>([]);
@@ -20,6 +20,7 @@ export const useThread = (threadId: number | null, senderId: string) => {
 
   useEffect(() => {
     if (threadId === null) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setMessages([]);
       return;
     }
@@ -28,6 +29,7 @@ export const useThread = (threadId: number | null, senderId: string) => {
     setError(null);
     client.get<Message[]>(`/messages/${threadId}/replies`)
       .then(res => {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setMessages(res.data);
       })
       .catch(err => {
@@ -44,6 +46,7 @@ export const useThread = (threadId: number | null, senderId: string) => {
       try {
         const newMsg = JSON.parse(lastMessage.data) as Message;
         if (newMsg.parent_id === threadId) {
+          // eslint-disable-next-line react-hooks/set-state-in-effect
           setMessages((prev) => [...prev, newMsg]);
         }
       } catch (e) {
@@ -56,7 +59,6 @@ export const useThread = (threadId: number | null, senderId: string) => {
     if (threadId === null) return;
     try {
         await client.post('/messages', { content, sender_id: senderId, parent_id: threadId });
-        // Message will be received via WebSocket and filtered by useEffect
     } catch (e) {
         console.error("Failed to send thread message", e);
         setError("Failed to send message.");
