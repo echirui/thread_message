@@ -28,6 +28,7 @@ async fn test_ws_broadcast(pool: sqlx::SqlitePool) {
     let new_msg = CreateMessage {
         content: "Broadcast Test".to_string(),
         sender_id: "user2".to_string(),
+        parent_id: None, // 追加
     };
     
     let resp = client.post(format!("{}/messages", base_url))
@@ -44,6 +45,7 @@ async fn test_ws_broadcast(pool: sqlx::SqlitePool) {
             let received: Message = serde_json::from_str(&text).expect("Failed to parse JSON");
             assert_eq!(received.content, "Broadcast Test");
             assert_eq!(received.sender_id, "user2");
+            assert!(received.parent_id.is_none()); // 確認も追加
         } else {
             panic!("Expected text message");
         }

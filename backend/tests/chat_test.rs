@@ -30,6 +30,7 @@ async fn test_create_and_get_messages(pool: sqlx::SqlitePool) {
     let new_msg = CreateMessage {
         content: "Hello World".to_string(),
         sender_id: "user1".to_string(),
+        parent_id: None, // 追加
     };
     let resp = client.post(format!("{}/messages", base_url))
         .json(&new_msg)
@@ -40,6 +41,7 @@ async fn test_create_and_get_messages(pool: sqlx::SqlitePool) {
     let created: Message = resp.json().await.unwrap();
     assert_eq!(created.content, "Hello World");
     assert_eq!(created.sender_id, "user1");
+    assert!(created.parent_id.is_none()); // 確認も追加
 
     // 3. Get messages again - should have 1
     let resp = client.get(format!("{}/messages", base_url))

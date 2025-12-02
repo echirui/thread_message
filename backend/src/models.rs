@@ -7,10 +7,12 @@ pub struct Message {
     pub content: String,
     pub sender_id: String,
     pub created_at: chrono::NaiveDateTime,
+    pub parent_id: Option<i64>,
 }
 
 #[derive(Debug, Deserialize, Serialize)]
 pub struct CreateMessage {
     pub content: String,
     pub sender_id: String,
+    pub parent_id: Option<i64>,
 }
