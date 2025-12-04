@@ -17,6 +17,9 @@ thiserror = "2.0.17"
 anyhow = "1.0.100"
 chrono = { version = "0.4.42", features = ["serde"] }
 futures = "0.3.31"
+oauth2 = "4.4"
+tower-cookies = "0.10"
+reqwest = { version = "0.12.24", features = ["json", "rustls-tls"] }
 
 [dev-dependencies]
 reqwest = { version = "0.12.24", features = ["json"] }
