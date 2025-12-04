@@ -2,20 +2,12 @@ import { useState } from 'react';
 import { MessageList } from './components/MessageList';
 import { ChatInput } from './components/ChatInput';
 import { ThreadView } from './components/ThreadView';
-import { useChat } from './hooks/useChat'; // useChat をインポート
-
-// Simple ID generator for demo
-const getUserId = () => {
-  let id = localStorage.getItem('thread_msg_user_id');
-  if (!id) {
-    id = 'user_' + Math.random().toString(36).substring(2, 9);
-    localStorage.setItem('thread_msg_user_id', id);
-  }
-  return id;
-};
+import { useChat } from './hooks/useChat';
+import { useAuth } from './hooks/useAuth';
 
 const ChatPage = () => {
-  const [userId] = useState(getUserId());
+  const { user } = useAuth();
+  const userId = user?.id.toString() || 'unknown';
   const { messages, sendMessage, isConnected } = useChat(userId);
   const [selectedThreadId, setSelectedThreadId] = useState<number | null>(null);
 
