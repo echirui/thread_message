@@ -49,6 +49,7 @@ const ChatPage = () => {
       {/* Thread View */}
       {selectedThreadId !== null && (
         <ThreadView
+          key={selectedThreadId}
           threadId={selectedThreadId}
           onClose={handleCloseThread}
           currentUserId={userId}
