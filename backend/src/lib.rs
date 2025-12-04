@@ -5,7 +5,7 @@ pub mod models;
 pub mod ws;
 
 use axum::{
-    routing::get,
+    routing::{get, post}, // post も必要なので残す
     Router,
     response::Json,
 };
@@ -29,7 +29,9 @@ pub async fn create_app(pool: sqlx::SqlitePool) -> Router {
 
     Router::new()
         .route("/", get(health_check))
-        .route("/messages", get(handlers::chat::get_messages).post(handlers::chat::create_message))
+        .route("/messages", get(handlers::chat::get_messages)) // GET
+        .route("/messages", post(handlers::chat::create_message)) // POST
+        .route("/messages/:id/replies", get(handlers::thread::get_thread_replies))
         .route("/ws", get(ws::ws_handler))
         .with_state(state)
         .layer(TraceLayer::new_for_http())

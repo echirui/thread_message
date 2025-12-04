@@ -7,6 +7,7 @@ export interface Message {
   content: string;
   sender_id: string;
   created_at: string;
+  parent_id: number | null; // 追加
 }
 
 export const useChat = (senderId: string) => {
@@ -41,7 +42,10 @@ export const useChat = (senderId: string) => {
     if (lastMessage !== null) {
       try {
         const newMsg = JSON.parse(lastMessage.data) as Message;
-        setMessages((prev) => [...prev, newMsg]);
+        // メインチャットのメッセージのみ追加
+        if (newMsg.parent_id === null) {
+          setMessages((prev) => [...prev, newMsg]);
+        }
       } catch (e) {
         console.error("Failed to parse WS message", e);
       }
@@ -50,7 +54,7 @@ export const useChat = (senderId: string) => {
 
   const sendMessage = async (content: string) => {
     try {
-        await client.post('/messages', { content, sender_id: senderId });
+        await client.post('/messages', { content, sender_id: senderId, parent_id: null }); // parent_id: null を明示
         // Message will be received via WebSocket
     } catch (e) {
         console.error("Failed to send message", e);
